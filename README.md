@@ -1,21 +1,37 @@
-# NBA Scraper
+# NBA Data Analyzer
 
-# NBA Data Analysis Project
-
-This project is designed to scrape, process, and analyze NBA game data. It includes functionalities for scraping game data from the web, querying player statistics, and displaying the results in a user-friendly interface using PySimpleGUI.
+A GUI application for analyzing NBA team and player statistics using the NBA API.
 
 ## Features
 
-- **Web Scraping**: Scrape NBA game data from Basketball Reference.
-- **Data Processing**: Load and process game data from CSV files.
-- **Player Query**: Query player statistics and display results in a table format.
-- **User Interface**: Simple GUI for querying player data using PySimpleGUI.
+- Team Analysis: View historical performance data and win/loss trends
+- Player Stats: Access detailed game logs and statistics for any player
+- League Leaders: Compare top performers across various statistical categories
 
+## Setup
+
+1. Install Python 3.8 or higher
+2. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Usage
+
+1. Run the application:
+   ```bash
+   python3 nba_analyzer_gui.py
+   ```
+
+2. Use the tabs to:
+   - Team Analysis: Select a team to view their historical performance
+   - Player Stats: Choose a player and season to see their game logs
+   - League Leaders: View top performers for any season
 
 ## Requirements
 
-- Python 3.x
-- BeautifulSoup4
+- Python 3.8+
 - pandas
-- lxml
-
+- matplotlib
+- nba_api
+- rich 

@@ -1,4 +1,4 @@
-#!/Users/mackenzieobrian/MacDoc/projects/NBA/.venv/bin/python
+#!/Users/mackenzieobrian/MacDoc/projects/NBA/NBAnew/NBA_Scraper/.venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys
