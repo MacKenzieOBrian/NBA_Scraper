@@ -48,7 +48,7 @@ class NBADataAnalyzer:
             raise ValueError(f"Team {team_name} not found")
         
         team_history = teamyearbyyearstats.TeamYearByYearStats(team_id=team['id'])
-        return team_history.get_data_frame()
+        return team_history.get_data_frames()[0] # get_data_frames returns a list of dataframes
     
     def player_game_logs(self, player_name, season):
         """Retrieve game logs for a specific player"""
@@ -57,245 +57,60 @@ class NBADataAnalyzer:
             raise ValueError(f"Player {player_name} not found")
         
         logs = playergamelog.PlayerGameLog(player_id=player['id'], season=season)
-        return logs.get_data_frame()
+        return logs.get_data_frames()[0] # get_data_frames returns a list of dataframes
     
     def get_league_leaders(self, season='2022-23', top_n=5):
         """Get league leaders for various statistics"""
         leaders = leagueleaders.LeagueLeaders(season=season)
-        return leaders.get_data_frame()
-
-class NBAAnalyzerGUI:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("NBA Data Analyzer")
-        self.root.geometry("1200x800")
-        self.analyzer = NBADataAnalyzer()
-        self.create_layout()
-        
-    def create_layout(self):
-        # Create notebook for tabs
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        # Create tabs
-        self.team_tab = ttk.Frame(self.notebook)
-        self.notebook.add(self.team_tab, text="Team Analysis")
-        self.create_team_tab()
-        
-        self.player_tab = ttk.Frame(self.notebook)
-        self.notebook.add(self.player_tab, text="Player Stats")
-        self.create_player_tab()
-        
-        self.leaders_tab = ttk.Frame(self.notebook)
-        self.notebook.add(self.leaders_tab, text="League Leaders")
-        self.create_leaders_tab()
-    
-    def create_team_tab(self):
-        # Left frame for controls
-        left_frame = ttk.Frame(self.team_tab, padding="5")
-        left_frame.pack(side=tk.LEFT, fill=tk.Y)
-        
-        # Team selection
-        ttk.Label(left_frame, text="Select Team:").pack(pady=5)
-        self.team_combo = ttk.Combobox(left_frame, width=30)
-        self.team_combo['values'] = [team['full_name'] for team in self.analyzer.teams]
-        self.team_combo.pack(pady=5)
-        
-        # Analyze button
-        ttk.Button(left_frame, text="Analyze Team", command=self.analyze_team).pack(pady=10)
-        
-        # Right frame for results
-        right_frame = ttk.Frame(self.team_tab, padding="5")
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
-        # Create figure for plotting
-        self.team_fig, self.team_ax = plt.subplots(figsize=(8, 6))
-        self.team_canvas = FigureCanvasTkAgg(self.team_fig, master=right_frame)
-        self.team_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        # Create table for stats
-        self.team_tree = ttk.Treeview(right_frame, show="headings")
-        self.team_tree.pack(fill=tk.BOTH, expand=True)
-        
-        # Add scrollbar
-        scrollbar = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.team_tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.team_tree.configure(yscrollcommand=scrollbar.set)
-    
-    def create_player_tab(self):
-        # Left frame for controls
-        left_frame = ttk.Frame(self.player_tab, padding="5")
-        left_frame.pack(side=tk.LEFT, fill=tk.Y)
-        
-        # Player selection
-        ttk.Label(left_frame, text="Select Player:").pack(pady=5)
-        self.player_combo = ttk.Combobox(left_frame, width=30)
-        self.player_combo['values'] = [player['full_name'] for player in self.analyzer.players]
-        self.player_combo.pack(pady=5)
-        
-        # Season selection
-        ttk.Label(left_frame, text="Select Season:").pack(pady=5)
-        self.season_combo = ttk.Combobox(left_frame, width=30)
-        self.season_combo['values'] = ['2022-23', '2021-22', '2020-21']
-        self.season_combo.set('2022-23')
-        self.season_combo.pack(pady=5)
-        
-        # Analyze button
-        ttk.Button(left_frame, text="Get Player Stats", command=self.analyze_player).pack(pady=10)
-        
-        # Right frame for results
-        right_frame = ttk.Frame(self.player_tab, padding="5")
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
-        # Create table for stats
-        self.player_tree = ttk.Treeview(right_frame, show="headings")
-        self.player_tree.pack(fill=tk.BOTH, expand=True)
-        
-        # Add scrollbar
-        scrollbar = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.player_tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.player_tree.configure(yscrollcommand=scrollbar.set)
-    
-    def create_leaders_tab(self):
-        # Left frame for controls
-        left_frame = ttk.Frame(self.leaders_tab, padding="5")
-        left_frame.pack(side=tk.LEFT, fill=tk.Y)
-        
-        # Season selection
-        ttk.Label(left_frame, text="Select Season:").pack(pady=5)
-        self.leaders_season_combo = ttk.Combobox(left_frame, width=30)
-        self.leaders_season_combo['values'] = ['2022-23', '2021-22', '2020-21']
-        self.leaders_season_combo.set('2022-23')
-        self.leaders_season_combo.pack(pady=5)
-        
-        # Number of players
-        ttk.Label(left_frame, text="Number of Players:").pack(pady=5)
-        self.top_n_var = tk.StringVar(value="5")
-        ttk.Entry(left_frame, textvariable=self.top_n_var, width=10).pack(pady=5)
-        
-        # Analyze button
-        ttk.Button(left_frame, text="Get League Leaders", command=self.show_leaders).pack(pady=10)
-        
-        # Right frame for results
-        right_frame = ttk.Frame(self.leaders_tab, padding="5")
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
-        # Create table for stats
-        self.leaders_tree = ttk.Treeview(right_frame, show="headings")
-        self.leaders_tree.pack(fill=tk.BOTH, expand=True)
-        
-        # Add scrollbar
-        scrollbar = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.leaders_tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.leaders_tree.configure(yscrollcommand=scrollbar.set)
-    
-    def analyze_team(self):
-        try:
-            team_name = self.team_combo.get()
-            if not team_name:
-                messagebox.showerror("Error", "Please select a team")
-                return
-            
-            # Get team history
-            df = self.analyzer.analyze_team_history(team_name)
-            
-            # Update table
-            self.team_tree["columns"] = list(df.columns)
-            for col in df.columns:
-                self.team_tree.heading(col, text=col)
-                self.team_tree.column(col, width=100)
-            
-            # Clear existing items
-            for item in self.team_tree.get_children():
-                self.team_tree.delete(item)
-            
-            # Add data
-            for idx, row in df.iterrows():
-                self.team_tree.insert("", tk.END, values=list(row))
-            
-            # Update plot
-            self.team_ax.clear()
-            self.team_ax.plot(df['YEAR'], df['WINS'], label='Wins', marker='o')
-            self.team_ax.plot(df['YEAR'], df['LOSSES'], label='Losses', marker='o')
-            self.team_ax.set_title(f'{team_name} Historical Performance')
-            self.team_ax.set_xlabel('Year')
-            self.team_ax.set_ylabel('Number of Games')
-            self.team_ax.legend()
-            self.team_ax.tick_params(axis='x', rotation=45)
-            self.team_fig.tight_layout()
-            self.team_canvas.draw()
-            
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-    
-    def analyze_player(self):
-        try:
-            player_name = self.player_combo.get()
-            season = self.season_combo.get()
-            
-            if not player_name or not season:
-                messagebox.showerror("Error", "Please select a player and season")
-                return
-            
-            # Get player stats
-            df = self.analyzer.player_game_logs(player_name, season)
-            
-            # Update table
-            self.player_tree["columns"] = list(df.columns)
-            for col in df.columns:
-                self.player_tree.heading(col, text=col)
-                self.player_tree.column(col, width=100)
-            
-            # Clear existing items
-            for item in self.player_tree.get_children():
-                self.player_tree.delete(item)
-            
-            # Add data
-            for idx, row in df.iterrows():
-                self.player_tree.insert("", tk.END, values=list(row))
-            
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-    
-    def show_leaders(self):
-        try:
-            season = self.leaders_season_combo.get()
-            top_n = int(self.top_n_var.get())
-            
-            if not season:
-                messagebox.showerror("Error", "Please select a season")
-                return
-            
-            # Get league leaders
-            df = self.analyzer.get_league_leaders(season, top_n)
-            
-            # Update table
-            self.leaders_tree["columns"] = list(df.columns)
-            for col in df.columns:
-                self.leaders_tree.heading(col, text=col)
-                self.leaders_tree.column(col, width=100)
-            
-            # Clear existing items
-            for item in self.leaders_tree.get_children():
-                self.leaders_tree.delete(item)
-            
-            # Add data
-            for idx, row in df.iterrows():
-                self.leaders_tree.insert("", tk.END, values=list(row))
-            
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-    
-    def run(self):
-        self.root.mainloop()
+        return leaders.get_data_frames()[0]
 
 if __name__ == "__main__":
     console.print(Panel.fit(
         "[bold blue]NBA Data Analyzer[/bold blue]\n"
         "A tool for analyzing NBA team and player statistics",
         title="Welcome",
-        subtitle="Loading application..."
+        subtitle="Starting command-line analysis..."
     ))
-    
-    app = NBAAnalyzerGUI()
-    app.run() 
+
+    analyzer = NBADataAnalyzer()
+
+    # Example: Analyze a team's history
+    team_name_to_analyze = 'Los Angeles Lakers'
+    console.print(f"\nAnalyzing historical data for [bold]{team_name_to_analyze}[/bold]...")
+    try:
+        team_data = analyzer.analyze_team_history(team_name_to_analyze)
+        if team_data is not None:
+            console.print(f"\nHistorical Data for [bold]{team_name_to_analyze}[/bold]:")
+            console.print(team_data.head()) # Print the first few rows
+        else:
+            console.print(f"Could not retrieve data for [bold]{team_name_to_analyze}[/bold].")
+    except ValueError as e:
+        console.print(f"Error: {e}")
+
+    # Example: Get game logs for a player
+    player_name_to_analyze = 'LeBron James'
+    season_to_analyze = '2022-23'
+    console.print(f"\nGetting game logs for [bold]{player_name_to_analyze}[/bold] in season [bold]{season_to_analyze}[/bold]...")
+    try:
+        player_logs = analyzer.player_game_logs(player_name_to_analyze, season_to_analyze)
+        if player_logs is not None:
+            console.print(f"\nGame Logs for [bold]{player_name_to_analyze}[/bold] ({season_to_analyze}):")
+            console.print(player_logs.head()) # Print the first few rows
+        else:
+            console.print(f"Could not retrieve game logs for [bold]{player_name_to_analyze}[/bold].")
+    except ValueError as e:
+        console.print(f"Error: {e}")
+
+    # Example: Get league leaders
+    leaders_season = '2022-23'
+    top_n_leaders = 10 # Get top 10 leaders
+    console.print(f"\nGetting top [bold]{top_n_leaders}[/bold] league leaders for season [bold]{leaders_season}[/bold]...")
+    try:
+        league_leaders_data = analyzer.get_league_leaders(leaders_season, top_n_leaders)
+        if league_leaders_data is not None:
+            console.print(f"\nTop [bold]{top_n_leaders}[/bold] League Leaders ({leaders_season}):")
+            console.print(league_leaders_data.head(top_n_leaders)) # Print the top N rows
+        else:
+            console.print(f"Could not retrieve league leaders for season [bold]{leaders_season}[/bold].")
+    except Exception as e:
+        console.print(f"Error: {e}")
