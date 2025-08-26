@@ -20,7 +20,7 @@ A GUI application for analyzing NBA team and player statistics using the NBA API
 
 1. Run the application:
    ```bash
-   python3 nba_analyzer_gui.py
+   python3 main.py
    ```
 
 2. Use the tabs to:
