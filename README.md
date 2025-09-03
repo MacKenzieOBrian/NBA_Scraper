@@ -1,4 +1,4 @@
-# NBA Data Analyzer
+# NBA Data Analyzer  
 
 A GUI application for analyzing NBA team and player statistics using the NBA API.
 
